@@ -6,5 +6,5 @@ use STS\HubSpot\Api\Model;
 
 class Ticket extends Model
 {
-    protected string $type = "tickets";
+    protected string $type = 'tickets';
 }

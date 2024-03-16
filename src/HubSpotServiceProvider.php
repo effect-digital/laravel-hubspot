@@ -12,6 +12,12 @@ class HubSpotServiceProvider extends PackageServiceProvider
     {
         $package->name('hubspot')->hasConfigFile();
 
-        $this->app->bind(Client::class, fn() => new Client(config('hubspot.access_token')));
+        $this->app->bind(
+            abstract: Client::class,
+            concrete: fn () => new Client(
+                baseUrl: config('hubspot.base_url'),
+                accessToken: config('hubspot.access_token')
+            )
+        );
     }
 }

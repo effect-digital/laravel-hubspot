@@ -19,18 +19,25 @@ class Builder
     use Conditionable;
 
     protected array $filters = [];
-    protected string $query;
+
+    protected ?string $query;
+
     protected array $sort;
+
     protected int $after;
+
     protected int $limit = 50;
 
     protected Model $object;
+
     protected string $objectClass;
 
     protected array $defaultProperties = [];
+
     protected array $properties = [];
 
     protected array $defaultAssociations = [];
+
     protected array $associations = [];
 
     public function __construct(protected Client $client)
@@ -123,9 +130,9 @@ class Builder
         return $this->client()->get(
             $this->object->endpoint('read', ['id' => $id]),
             [
-                'properties'   => implode(",", $this->includeProperties()),
-                'associations' => implode(",", $this->includeAssociations()),
-                'idProperty'   => $idProperty
+                'properties' => implode(',', $this->includeProperties()),
+                'associations' => implode(',', $this->includeAssociations()),
+                'idProperty' => $idProperty,
             ]
         )->json();
     }
@@ -137,7 +144,7 @@ class Builder
         }
 
         try {
-           return $this->findOrFail($id, $idProperty);
+            return $this->findOrFail($id, $idProperty);
         } catch (NotFoundException $e) {
             return null;
         }
@@ -154,7 +161,7 @@ class Builder
             return new Collection([$this->find($ids[0], $idProperty)]);
         }
 
-        if (!count($ids)) {
+        if (! count($ids)) {
             return new Collection();
         }
 
@@ -163,7 +170,7 @@ class Builder
             [
                 'properties' => $this->includeProperties(),
                 'idProperty' => $idProperty,
-                'inputs'     => array_map(fn($id) => ['id' => $id], $ids)
+                'inputs' => array_map(fn ($id) => ['id' => $id], $ids),
             ]
         )->json();
 
@@ -172,21 +179,21 @@ class Builder
 
     public function findOrFail($id, $idProperty = null): Model
     {
-        return ($this->hydrateObject(
+        return $this->hydrateObject(
             $this->item($id, $idProperty)
-        ))->has($this->includeAssociations());
+        )->has($this->includeAssociations());
     }
 
     public function findOrNew($id, $idProperty = null)
     {
-        if (!is_null($model = $this->find($id, $idProperty))) {
+        if (! is_null($model = $this->find($id, $idProperty))) {
             return $model;
         }
 
         return new $this->objectClass();
     }
 
-    public function findOr($id, $idProperty = null, Closure $callback = null)
+    public function findOr($id, $idProperty = null, ?Closure $callback = null)
     {
         if ($idProperty instanceof Closure) {
             $callback = $idProperty;
@@ -194,7 +201,7 @@ class Builder
             $idProperty = null;
         }
 
-        if (!is_null($model = $this->find($id, $idProperty))) {
+        if (! is_null($model = $this->find($id, $idProperty))) {
             return $model;
         }
 
@@ -234,7 +241,7 @@ class Builder
     {
         $this->sort = [
             'propertyName' => $property,
-            'direction'    => strtoupper($direction) === 'DESC' ? 'DESCENDING' : 'ASCENDING'
+            'direction' => strtoupper($direction) === 'DESC' ? 'DESCENDING' : 'ASCENDING',
         ];
 
         return $this;
@@ -266,19 +273,19 @@ class Builder
         return $this->client()->post(
             $this->object->endpoint('search'),
             [
-                'limit'        => $limit ?? $this->limit,
-                'after'        => $after ?? $this->after ?? null,
-                'query'        => $this->query ?? null,
-                'properties'   => $this->includeProperties(),
-                'sorts'        => isset($this->sort) ? [$this->sort] : null,
+                'limit' => $limit ?? $this->limit,
+                'after' => $after ?? $this->after ?? null,
+                'query' => $this->query ?? null,
+                'properties' => $this->includeProperties(),
+                'sorts' => isset($this->sort) ? [$this->sort] : null,
                 'filterGroups' => [[
-                    'filters' => array_map(fn($filter) => $filter->toArray(), $this->filters)
-                ]]
+                    'filters' => array_map(fn ($filter) => $filter->toArray(), $this->filters),
+                ]],
             ]
         )->json();
     }
 
-    public function get()
+    public function get(): Collection
     {
         return Collection::hydrate(
             $this->items(),
@@ -313,7 +320,7 @@ class Builder
 
         return new LengthAwarePaginator(
             $results, $results->total(), $perPage, $page, [
-                'path'     => Paginator::resolveCurrentPath(),
+                'path' => Paginator::resolveCurrentPath(),
                 'pageName' => $pageName,
             ]
         );
@@ -324,7 +331,7 @@ class Builder
         return $this->take(1)->get()->total();
     }
 
-    public function first(): Model|null
+    public function first(): ?Model
     {
         return $this->take(1)->get()->first();
     }
@@ -335,7 +342,7 @@ class Builder
             $this->object->endpoint('associate', [
                 'association' => $target->type(),
                 'associationId' => $targetId,
-                'associationType' => Str::singular($this->object->type()) . "_to_" . Str::singular($target->type())
+                'associationType' => Str::singular($this->object->type()).'_to_'.Str::singular($target->type()),
             ])
         )->json();
     }

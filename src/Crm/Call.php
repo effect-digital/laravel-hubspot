@@ -9,6 +9,7 @@ use STS\HubSpot\Api\Model;
 /**
  * @method Association contacts();
  * @method Association tickets();
+ *
  * @property-read Contact|null $contact
  * @property-read Collection $contacts
  * @property-read Ticket|null $ticket
@@ -16,5 +17,5 @@ use STS\HubSpot\Api\Model;
  */
 class Call extends Model
 {
-    protected string $type = "calls";
+    protected string $type = 'calls';
 }

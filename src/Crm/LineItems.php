@@ -9,6 +9,7 @@ use STS\HubSpot\Api\Model;
 /**
  * @method Association deals()
  * @method Association quotes()
+ *
  * @property-read Deal|null $deal
  * @property-read Collection $deals
  * @property-read Quote|null $quote
@@ -16,5 +17,5 @@ use STS\HubSpot\Api\Model;
  */
 class LineItems extends Model
 {
-    protected string $type = "line_items";
+    protected string $type = 'line_items';
 }

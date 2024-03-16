@@ -1,5 +1,5 @@
 {
-    "name": "stechstudio/laravel-hubspot",
+    "name": "effect-digital/laravel-hubspot",
     "description": "A Laravel SDK for the HubSpot CRM Api",
     "keywords": [
         "stechstudio",
@@ -12,6 +12,11 @@
         {
             "name": "Joseph Szobody",
             "email": "joseph@stechstudio.com",
+            "role": "Developer"
+        },
+        {
+            "name": "Adam Rollinson",
+            "email": "adam@effectdigital.com",
             "role": "Developer"
         }
     ],

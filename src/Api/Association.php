@@ -14,8 +14,7 @@ class Association
         protected Model $source,
         protected Model $target,
         protected array $ids = []
-    )
-    {
+    ) {
     }
 
     public function get(): Collection
@@ -42,7 +41,7 @@ class Association
 
     public function attach($targetId)
     {
-        if($targetId instanceof Model) {
+        if ($targetId instanceof Model) {
             $targetId = $targetId->id;
         }
 

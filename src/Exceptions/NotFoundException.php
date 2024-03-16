@@ -13,7 +13,7 @@ class NotFoundException extends HttpClientException
     public function __construct(Response $response, RequestException $previous)
     {
         parent::__construct(
-            'Resource not found: ' . $response->effectiveUri()->getPath(),
+            'Resource not found: '.$response->effectiveUri()->getPath(),
             $response->status(),
             $previous
         );

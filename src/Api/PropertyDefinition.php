@@ -2,7 +2,6 @@
 
 namespace STS\HubSpot\Api;
 
-use Illuminate\Cache\TaggedCache;
 use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Support\Facades\Cache;
 use STS\HubSpot\Crm\Property;
@@ -18,7 +17,7 @@ class PropertyDefinition
 
     public function get($key = null): Collection|Property
     {
-        if($key !== null) {
+        if ($key !== null) {
             return $this->get()->get($key);
         }
 
@@ -29,7 +28,7 @@ class PropertyDefinition
     {
         return tap(
             $this->builder->createDefinition($properties),
-            fn() => $this->refresh()
+            fn () => $this->refresh()
         );
     }
 
@@ -44,7 +43,7 @@ class PropertyDefinition
     {
         $definitions = $this->builder->properties()->keyBy('name');
 
-        if(HubSpot::shouldCacheDefinitions()) {
+        if (HubSpot::shouldCacheDefinitions()) {
             $this->cache()->put($this->cacheKey(), $definitions, HubSpot::definitionCacheTtl());
         }
 

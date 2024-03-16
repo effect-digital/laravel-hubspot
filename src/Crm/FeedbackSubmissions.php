@@ -9,6 +9,7 @@ use STS\HubSpot\Api\Model;
 /**
  * @method Association contacts()
  * @method Association tickets()
+ *
  * @property-read Contact|null $contact
  * @property-read Collection $contacts
  * @property-read Ticket|null $ticket
@@ -16,5 +17,5 @@ use STS\HubSpot\Api\Model;
  */
 class FeedbackSubmissions extends Model
 {
-    protected string $type = "feedback_submissions";
+    protected string $type = 'feedback_submissions';
 }

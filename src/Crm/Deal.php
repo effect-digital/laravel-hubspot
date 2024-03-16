@@ -11,6 +11,7 @@ use STS\HubSpot\Api\Model;
  * @method Association contacts()
  * @method Association line_items()
  * @method Association quotes()
+ *
  * @property-read Company|null $company
  * @property-read Collection $companies
  * @property-read Contact|null $contact
@@ -22,5 +23,5 @@ use STS\HubSpot\Api\Model;
  */
 class Deal extends Model
 {
-    protected string $type = "deals";
+    protected string $type = 'deals';
 }

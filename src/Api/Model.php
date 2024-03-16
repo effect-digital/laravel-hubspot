@@ -18,36 +18,28 @@ use STS\HubSpot\Facades\HubSpot;
  */
 abstract class Model
 {
-    use ForwardsCalls, Macroable, HasAssociations, HasPropertyDefinitions;
+    use ForwardsCalls, HasAssociations, HasPropertyDefinitions, Macroable;
 
     protected string $type;
 
     protected array $payload = [];
+
     protected array $properties = [];
+
     public bool $exists = false;
 
     protected array $schema = [
-        'id'                    => 'int',
-        'properties'            => 'array',
+        'id' => 'int',
+        'properties' => 'array',
         'propertiesWithHistory' => 'array',
-        'associations'          => 'array',
-        'createdAt'             => 'datetime',
-        'updatedAt'             => 'datetime',
-        'archived'              => 'bool',
-        'archivedAt'            => 'datetime',
+        'associations' => 'array',
+        'createdAt' => 'datetime',
+        'updatedAt' => 'datetime',
+        'archived' => 'bool',
+        'archivedAt' => 'datetime',
     ];
 
-    protected array $endpoints = [
-        "create" => "/v3/objects/{type}",
-        "read" => "/v3/objects/{type}/{id}",
-        "batchRead" => "/v3/objects/{type}/batch/read",
-        "update" => "/v3/objects/{type}/{id}",
-        "delete" => "/v3/objects/{type}/{id}",
-        "search" => "/v3/objects/{type}/search",
-        "associate" => "/v3/objects/{type}/{id}/associations/{association}/{associationId}/{associationType}",
-        "associations" => "/v3/objects/{type}/{id}/associations/{association}",
-        "properties" => "/v3/properties/{type}",
-    ];
+    protected array $endpoints;
 
     public function __construct(array $properties = [])
     {
@@ -82,7 +74,7 @@ abstract class Model
 
         $properties = array_filter(
             $properties,
-            static fn (string $key): bool => !(HubSpot::isType($key) || HubSpot::isType(Str::plural($key))),
+            static fn (string $key): bool => ! (HubSpot::isType($key) || HubSpot::isType(Str::plural($key))),
             ARRAY_FILTER_USE_KEY
         );
 
@@ -96,16 +88,30 @@ abstract class Model
         return $this->type;
     }
 
-    public function endpoint($key, $fill = []): string
+    public function endpoint($key, $fill = [], array $customEndpoints = []): string
     {
+        $this->endpoints = [
+            'create' => config('hubspot.endpoints.create', '/crm/v3/objects/{type}'),
+            'read' => config('hubspot.endpoints.read', '/crm/v3/objects/{type}/{id}'),
+            'update' => config('hubspot.endpoints.update', '/crm/v3/objects/{type}/{id}'),
+            'delete' => config('hubspot.endpoints.delete', '/crm/v3/objects/{type}/{id}'),
+            'search' => config('hubspot.endpoints.search', '/crm/v3/objects/{type}/search'),
+            'batchRead' => config('hubspot.endpoints.batchRead', '/crm/v3/objects/{type}/batch/read'),
+            'associations' => config('hubspot.endpoints.associations', '/crm/v3/objects/{type}/{id}/{association}'),
+            'associate' => config('hubspot.endpoints.associate', '/crm/v3/objects/{type}/{id}/associations/{association}/{associationId}/{associationType}'),
+            'properties' => config('hubspot.endpoints.properties', '/crm/v3/properties/{type}'),
+        ];
+
+        $this->endpoints = array_merge($this->endpoints, $customEndpoints);
+
         $fill['type'] = $this->type;
 
-        if(Arr::has($this->payload, 'id')) {
+        if (Arr::has($this->payload, 'id')) {
             $fill['id'] = $this->getFromPayload('id');
         }
 
         return str_replace(
-            array_map(fn($key) => "{" . $key . "}", array_keys($fill)),
+            array_map(fn ($key) => '{'.$key.'}', array_keys($fill)),
             array_values($fill),
             $this->endpoints[$key]
         );
@@ -167,7 +173,7 @@ abstract class Model
     {
         $value = Arr::get($this->properties, $key);
 
-        return !is_a($this, Owner::class) && !is_a($this, Property::class) && $this->definitions->has($key)
+        return ! is_a($this, Owner::class) && ! is_a($this, Property::class) && $this->definitions->has($key)
             ? $this->definitions->get($key)->unserialize($value)
             : $value;
     }
@@ -189,11 +195,11 @@ abstract class Model
     protected function cast($value, $type = null): mixed
     {
         return match ($type) {
-            'int'      => (int)$value,
+            'int' => (int) $value,
             'datetime' => Carbon::parse($value),
-            'array'    => (array)$value,
-            'string'   => (string)$value,
-            default    => $value
+            'array' => (array) $value,
+            'string' => (string) $value,
+            default => $value
         };
     }
 
@@ -225,7 +231,7 @@ abstract class Model
 
     public function __get($key)
     {
-        if($key === "definitions") {
+        if ($key === 'definitions') {
             return $this->builder()->definitions()->get();
         }
 

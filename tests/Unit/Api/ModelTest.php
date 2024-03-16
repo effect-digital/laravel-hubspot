@@ -19,7 +19,8 @@ beforeEach(function () {
 test('new model fills properties on creation', function () {
     $testValue = ['test_attribute' => sha1(random_bytes(11))];
 
-    (new class($testValue) extends AbstractApiModel {
+    (new class($testValue) extends AbstractApiModel
+    {
         public function fill(array $properties): static
         {
             Assert::assertArrayHasKey('test_attribute', $properties);
@@ -27,13 +28,15 @@ test('new model fills properties on creation', function () {
             $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1];
             Assert::assertSame('__construct', $trace['function']);
             Assert::assertSame(AbstractApiModel::class, $trace['class']);
+
             return $this;
         }
     });
 });
 
 test('new model does not call fill when empty params', function () {
-    new class([]) extends AbstractApiModel {
+    new class([]) extends AbstractApiModel
+    {
         public function fill(array $properties): static
         {
             Assert::fail('fill was called from __construct when empty params');
@@ -44,7 +47,8 @@ test('new model does not call fill when empty params', function () {
 
 test('fill does not fill hubspot types', function (string $type) {
     $baseData = ['test_name' => $this->getName()];
-    $model = (new class extends AbstractApiModel {
+    $model = (new class extends AbstractApiModel
+    {
     })->fill([$type => sha1(random_bytes(11)), ...$baseData]);
 
     $properties = new ReflectionProperty($model, 'properties');
@@ -54,17 +58,20 @@ test('fill does not fill hubspot types', function (string $type) {
 test('update calls fill & save', function () {
     $testValue = ['test_attribute' => sha1(random_bytes(11))];
 
-    (new class extends AbstractApiModel {
+    (new class extends AbstractApiModel
+    {
         public function fill(array $properties): static
         {
             Assert::assertArrayHasKey('test_attribute', $properties);
             $this->assertBacktraceIsUpdate();
+
             return $this;
         }
 
         public function save(): static
         {
             $this->assertBacktraceIsUpdate();
+
             return $this;
         }
 
@@ -75,12 +82,12 @@ test('update calls fill & save', function () {
             Assert::assertSame('update', $trace['function']);
             Assert::assertSame(AbstractApiModel::class, $trace['class']);
         }
-
     })->update($testValue);
 });
 
 test('setting value on model sets property key to value', function () {
-    $model = new class extends AbstractApiModel {
+    $model = new class extends AbstractApiModel
+    {
     };
     $attributes = new ReflectionProperty($model, 'properties');
 
@@ -96,7 +103,8 @@ test('setting value on model sets property key to value', function () {
 });
 
 test('setting hubspot types on model does not set value', function (string $propName) {
-    $model = new class extends AbstractApiModel {
+    $model = new class extends AbstractApiModel
+    {
     };
     $attributes = new ReflectionProperty($model, 'properties');
 
@@ -111,7 +119,8 @@ test('setting hubspot types on model does not set value', function (string $prop
     ->with('SdkTypes-both');
 
 test('builder returns api builder', function () {
-    $model = new class extends AbstractApiModel {
+    $model = new class extends AbstractApiModel
+    {
     };
 
     $this->builder
@@ -125,7 +134,8 @@ test('builder returns api builder', function () {
 });
 
 test('static query returns api builder', function () {
-    $model = new class extends AbstractApiModel {
+    $model = new class extends AbstractApiModel
+    {
     };
 
     $this->builder
@@ -134,6 +144,7 @@ test('static query returns api builder', function () {
         ->with($this->callback(
             function ($param) {
                 $this->assertInstanceOf(AbstractApiModel::class, $param);
+
                 return true;
             }
         ))
@@ -147,19 +158,23 @@ test('magic get value on model calls getFromProperties when property set', funct
     $propName = sha1(random_bytes(11));
     $propValue = sha1(random_bytes(11));
 
-    $model = (new class extends AbstractApiModel {
+    $model = (new class extends AbstractApiModel
+    {
         protected string $type = 'deals';
+
         private string $expectedKey;
 
         public function setExpectedKey(string $expectedKey)
         {
             $this->expectedKey = $expectedKey;
+
             return $this;
         }
 
         public function getFromProperties($key): mixed
         {
             Assert::assertSame($this->expectedKey, $key);
+
             return $this->properties[$key];
         }
     })->setExpectedKey($propName);
@@ -175,13 +190,16 @@ test('magic get value on model calls getAssociations when HubSpot::isType', func
     $this->builder->method('for')->willReturnSelf();
     $testReturn = new Collection(['test' => $this->getName(), 'type' => $type]);
 
-    $model = (new class extends AbstractApiModel {
+    $model = (new class extends AbstractApiModel
+    {
         private string $expectedType;
+
         private Collection $testReturn;
 
         public function getAssociations($type): Collection
         {
             Assert::assertSame($this->expectedType, $type);
+
             return $this->testReturn;
         }
 
@@ -189,6 +207,7 @@ test('magic get value on model calls getAssociations when HubSpot::isType', func
         {
             $this->expectedType = $expectedType;
             $this->testReturn = $testReturn;
+
             return $this;
         }
     })->setTestExpectations($type, $testReturn);
@@ -199,13 +218,16 @@ test('magic get value on model calls getAssociations when HubSpot::isType', func
 test('magic get value on model calls getAssociations when HubSpot::isType singular', function (string $singularType) {
     $this->builder->method('for')->willReturnSelf();
     $testReturn = new Collection(['test' => $this->getName(), 'type' => $singularType]);
-    $model = (new class extends AbstractApiModel {
+    $model = (new class extends AbstractApiModel
+    {
         private string $expectedType;
+
         private Collection $testReturn;
 
         public function getAssociations($type): Collection
         {
             Assert::assertSame(Str::plural($this->expectedType), $type);
+
             return $this->testReturn;
         }
 
@@ -213,6 +235,7 @@ test('magic get value on model calls getAssociations when HubSpot::isType singul
         {
             $this->expectedType = $expectedType;
             $this->testReturn = $testReturn;
+
             return $this;
         }
     })->setTestExpectations($singularType, $testReturn);
@@ -237,7 +260,8 @@ test('magic get definitions on model calls builder for values', function () {
         ->method('get')
         ->willReturn($testCollection);
 
-    $model = new class extends AbstractApiModel {
+    $model = new class extends AbstractApiModel
+    {
     };
 
     expect($model->__get('definitions'))->toBe($testCollection);
@@ -246,13 +270,15 @@ test('magic get gets payload if exists', function () {
     $this->builder->method('for')->willReturnSelf();
     $propName = sha1(random_bytes(11));
 
-    $model = (new class extends AbstractApiModel {
+    $model = (new class extends AbstractApiModel
+    {
         private string $expectedKey;
 
         public function setTestExpectations(string $key, string $value): self
         {
             $this->expectedKey = $key;
             $this->payload[$key] = $value;
+
             return $this;
         }
 
@@ -260,6 +286,7 @@ test('magic get gets payload if exists', function () {
         {
             Assert::assertSame($this->expectedKey, $key);
             Assert::assertNull($default);
+
             return parent::getFromPayload($key, $default);
         }
     })->setTestExpectations($propName, $this->getName());
@@ -270,14 +297,16 @@ test('magic get gets payload if exists', function () {
 });
 
 test('magic get returns null if nothing found', function () {
-    $model = new class extends AbstractApiModel {
+    $model = new class extends AbstractApiModel
+    {
     };
     expect($model->__get(sha1(random_bytes(11))))->toBeNull();
 });
 
 test('type returns internal type', function () {
     $this->builder->method('for')->willReturnSelf();
-    $model = new class extends AbstractApiModel {
+    $model = new class extends AbstractApiModel
+    {
     };
     $type = sha1(random_bytes(11));
     $property = new ReflectionProperty($model, 'type');
@@ -286,7 +315,8 @@ test('type returns internal type', function () {
 });
 
 test('hasNamedScope returns correct value', function () {
-    $model = new class extends AbstractApiModel {
+    $model = new class extends AbstractApiModel
+    {
         public function scopeTest()
         {
         }
@@ -299,7 +329,8 @@ test('hasNamedScope returns correct value', function () {
 });
 
 test('toArray returns payload', function () {
-    $model = new class extends AbstractApiModel {
+    $model = new class extends AbstractApiModel
+    {
     };
 
     $payload = [
@@ -314,7 +345,8 @@ test('toArray returns payload', function () {
 });
 
 test('callNamedScope calls Named Scope', function () {
-    $model = new class extends AbstractApiModel {
+    $model = new class extends AbstractApiModel
+    {
         public function scopeTestScope(...$parameters)
         {
             foreach ($parameters as &$value) {
@@ -331,7 +363,8 @@ test('callNamedScope calls Named Scope', function () {
 });
 
 test('__isset returns when property is set', function () {
-    $model = new class extends AbstractApiModel {
+    $model = new class extends AbstractApiModel
+    {
     };
     $propName = sha1(random_bytes(11));
     $propValue = sha1(random_bytes(11));
@@ -350,7 +383,8 @@ test('__isset returns when property is set', function () {
 });
 
 test('cast casts based on type', function () {
-    $model = new class extends AbstractApiModel {
+    $model = new class extends AbstractApiModel
+    {
     };
     $castMethod = new ReflectionMethod($model, 'cast');
 
@@ -361,21 +395,24 @@ test('cast casts based on type', function () {
 });
 
 test('cast invalid datetime throws exception', function () {
-    $model = new class extends AbstractApiModel {
+    $model = new class extends AbstractApiModel
+    {
     };
     $castMethod = new ReflectionMethod($model, 'cast');
     $castMethod->invoke($model, 'abc', 'datetime');
 })->throws(InvalidFormatException::class);
 
 test('cast to string throws exception on array', function () {
-    $model = new class extends AbstractApiModel {
+    $model = new class extends AbstractApiModel
+    {
     };
     $castMethod = new ReflectionMethod($model, 'cast');
     $castMethod->invoke($model, ['abc'], 'string');
 })->throws(ErrorException::class, 'Array to string conversion');
 
 test('cast to int does weird', function () {
-    $model = new class extends AbstractApiModel {
+    $model = new class extends AbstractApiModel
+    {
     };
     $castMethod = new ReflectionMethod($model, 'cast');
     expect($castMethod->invoke($model, ['abc'], 'int'))->toBe(1)
@@ -383,12 +420,14 @@ test('cast to int does weird', function () {
 });
 
 test('getFromPayload returns casted properties', function () {
-    $model = new class extends AbstractApiModel {
-        private string|null $expectedType;
+    $model = new class extends AbstractApiModel
+    {
+        private ?string $expectedType;
 
         protected function cast($value, $type = null): mixed
         {
             Assert::assertSame($this->expectedType, $type);
+
             return parent::cast($value, $type);
         }
 
@@ -404,18 +443,20 @@ test('getFromPayload returns casted properties', function () {
             if ($value !== null) {
                 $this->payload[$key] = $value;
             }
+
             return $this;
         }
     };
 
     $idValue = random_int(11, 99);
     expect(
-        $model->setExpected('id', value: (string)$idValue)->getFromPayload('id')
+        $model->setExpected('id', value: (string) $idValue)->getFromPayload('id')
     )->toBe($idValue);
 });
 
 test('delete calls builder delete and sets exists false', function () {
-    $model = new class extends AbstractApiModel {
+    $model = new class extends AbstractApiModel
+    {
         public bool $exists = true;
     };
 
@@ -431,29 +472,31 @@ test('delete calls builder delete and sets exists false', function () {
 });
 
 test('method calls are forwarded to associations for hubspot types', function (string $type) {
-    $model = (new class extends AbstractApiModel {
-
+    $model = (new class extends AbstractApiModel
+    {
         private string $expectedType;
 
         public function associations($type): Association
         {
             Assert::assertSame($this->expectedType, $type);
+
             return parent::associations($type);
         }
 
         public function setExpected(string $expectedType): self
         {
             $this->expectedType = $expectedType;
+
             return $this;
         }
-
     })->setExpected($type);
 
     $model->$type();
 })->with('SdkTypes');
 
 test('static calls get forwarded', function () {
-    $model = new class extends AbstractApiModel {
+    $model = new class extends AbstractApiModel
+    {
         protected function mylittletestfunction(string $testMessage)
         {
             $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1];
@@ -467,13 +510,15 @@ test('static calls get forwarded', function () {
 });
 
 test('only calls getFromProperties for each item passed', function () {
-    $model = new class extends AbstractApiModel {
+    $model = new class extends AbstractApiModel
+    {
         public const TESTVALUES = ['a' => 1, 'yes' => 2, 'b' => 3, 'no' => 4, 'k' => 5];
 
         public function getFromProperties($key): mixed
         {
-            Assert::assertArrayHasKey($key, static::TESTVALUES);
-            return static::TESTVALUES[$key];
+            Assert::assertArrayHasKey($key, self::TESTVALUES);
+
+            return self::TESTVALUES[$key];
         }
     };
 
@@ -482,7 +527,8 @@ test('only calls getFromProperties for each item passed', function () {
 });
 
 test('getFromProperties returns item when instance of Property', function () {
-    $model = new class extends Property {
+    $model = new class extends Property
+    {
     };
 
     $this->builder->method('for')->willReturnSelf();
@@ -493,7 +539,8 @@ test('getFromProperties returns item when instance of Property', function () {
 });
 
 test('getFromProperties returns item when definitions is missing key ', function () {
-    $model = new class extends AbstractApiModel {
+    $model = new class extends AbstractApiModel
+    {
     };
 
     $propertyDefinition = $this->createMock(PropertyDefinition::class);
@@ -513,7 +560,8 @@ test('getFromProperties returns item when definitions is missing key ', function
 });
 
 test('getFromProperties returns unserialized definition when definitions is matches key', function () {
-    $model = new class extends AbstractApiModel {
+    $model = new class extends AbstractApiModel
+    {
     };
 
     $sha1 = sha1(random_bytes(11));
@@ -545,65 +593,75 @@ test('getFromProperties returns unserialized definition when definitions is matc
 });
 
 test('endpoint replaces type with model property', function () {
-    $model = new class extends AbstractApiModel {
+    $model = new class extends AbstractApiModel
+    {
         protected string $type = 'testing';
-        protected array $endpoints = ['test_abc' => '/test/{type}/testing'];
     };
-    $this->assertSame('/test/testing/testing', $model->endpoint('test_abc'));
-    $this->assertSame('/test/testing/testing', $model->endpoint('test_abc', ['type' => 'other type']));
+
+    $this->assertSame('/test/testing/testing', $model->endpoint('test_abc', null, ['test_abc' => '/test/{type}/testing']));
+    $this->assertSame('/test/testing/testing', $model->endpoint('test_abc', ['type' => 'other type'], ['test_abc' => '/test/{type}/testing']));
 });
 
 test('endpoint replaces id with payload id', function () {
-    $model = new class extends AbstractApiModel {
+    $model = new class extends AbstractApiModel
+    {
         protected string $type = 'testing';
+
         protected array $payload = ['id' => '123'];
-        protected array $endpoints = ['test_abc' => '/test/{type}/{id}'];
     };
-    $this->assertSame('/test/testing/123', $model->endpoint('test_abc'));
-    $this->assertSame('/test/testing/123', $model->endpoint('test_abc', ['id' => '222']));
+
+    $this->assertSame('/test/testing/123', $model->endpoint('test_abc', null, ['test_abc' => '/test/{type}/{id}']));
+    $this->assertSame('/test/testing/123', $model->endpoint('test_abc', ['id' => '222'], ['test_abc' => '/test/{type}/{id}']));
 });
 
 test('endpoint replaces endpoint keys with passed fill', function () {
-    $model = new class extends AbstractApiModel {
+    $model = new class extends AbstractApiModel
+    {
         protected string $type = 'testing';
-        protected array $endpoints = ['test_abc' => '/test/{type}/{param1}/param2/{param3}'];
     };
+
     $time = now()->toDateTimeString();
     $endpoint = $model->endpoint(
         'test_abc',
         [
             'param1' => 'eter1',
             'param2' => 'ignored',
-            'param3' => $time
-        ]
+            'param3' => $time,
+        ],
+        ['test_abc' => '/test/{type}/{param1}/param2/{param3}']
     );
-    $this->assertSame('/test/testing/eter1/param2/' . $time, $endpoint);
+    $this->assertSame('/test/testing/eter1/param2/'.$time, $endpoint);
 });
 
 test('getDirty returns properties missing from payload', function () {
-    $model = new class extends AbstractApiModel {
+    $model = new class extends AbstractApiModel
+    {
         protected array $payload = ['properties' => []];
+
         protected array $properties = ['test' => 123];
     };
     $this->assertSame(['test' => 123], $model->getDirty());
 });
 
 test('getDirty returns properties changed from payload', function () {
-    $model = new class extends AbstractApiModel {
+    $model = new class extends AbstractApiModel
+    {
         protected array $payload = ['properties' => ['test' => 123]];
+
         protected array $properties = ['test' => 321];
     };
     $this->assertSame(['test' => 321], $model->getDirty());
 });
 
 test('hydrate calls init on new instance', function () {
-    $model = new class extends AbstractApiModel {
-
+    $model = new class extends AbstractApiModel
+    {
         public static array $expectedPayload = [];
 
         protected function init(array $payload = []): static
         {
             Assert::assertSame(self::$expectedPayload, $payload);
+
             return $this;
         }
     };
@@ -614,12 +672,14 @@ test('hydrate calls init on new instance', function () {
 });
 
 test('init calls fill, set exists and sets payload', function () {
-    $model = new class extends AbstractApiModel {
+    $model = new class extends AbstractApiModel
+    {
         public static array $expectedPayload = [];
 
         public function fill(array $properties): static
         {
             Assert::assertSame(self::$expectedPayload['properties'], $properties);
+
             return parent::fill($properties); // TODO: Change the autogenerated stub
         }
     };
@@ -628,8 +688,8 @@ test('init calls fill, set exists and sets payload', function () {
         'id' => random_int(100, 999),
         'properties' => [
             'test' => $this->getName(),
-            'when' => now()->toDateTimeString()
-        ]
+            'when' => now()->toDateTimeString(),
+        ],
     ];
 
     $initMethod = new ReflectionMethod($model, 'init');
@@ -640,15 +700,17 @@ test('init calls fill, set exists and sets payload', function () {
     $this->assertTrue($result->exists);
 });
 
-
 test('expand calls through as expected', function () {
-    $model = new class extends AbstractApiModel {
+    $model = new class extends AbstractApiModel
+    {
         public static array $expectedPayload = [];
+
         protected array $properties = ['id' => 123];
 
         protected function init(array $payload = []): static
         {
             Assert::assertSame(self::$expectedPayload, $payload);
+
             return parent::init($payload);
         }
     };
@@ -657,8 +719,8 @@ test('expand calls through as expected', function () {
         'id' => random_int(100, 999),
         'properties' => [
             'test' => $this->getName(),
-            'when' => now()->toDateTimeString()
-        ]
+            'when' => now()->toDateTimeString(),
+        ],
     ];
 
     $this->builder->method('for')->willReturnSelf();
@@ -678,7 +740,8 @@ test('expand calls through as expected', function () {
 });
 
 test('create calls hydrate with builder create properties', function () {
-    $model = new class extends AbstractApiModel {
+    $model = new class extends AbstractApiModel
+    {
         public static array $expectedPayload = [];
 
         public static function hydrate(array $payload = []): static
@@ -687,16 +750,17 @@ test('create calls hydrate with builder create properties', function () {
             Assert::assertSame('create', $trace['function']);
             Assert::assertSame('::', $trace['type']);
             Assert::assertSame(AbstractApiModel::class, $trace['class']);
+
             return parent::hydrate($payload);
         }
     };
     $properties = [
         'test' => $this->getName(),
-        'when' => now()->toDateTimeString()
+        'when' => now()->toDateTimeString(),
     ];
     $model::$expectedPayload = [
         'id' => random_int(100, 999),
-        'properties' => $properties
+        'properties' => $properties,
     ];
 
     $this->builder->method('for')->willReturnSelf();
@@ -706,8 +770,10 @@ test('create calls hydrate with builder create properties', function () {
 });
 
 test('save when exists is true', function () {
-    $model = new class extends AbstractApiModel {
+    $model = new class extends AbstractApiModel
+    {
         public bool $exists = true;
+
         public static array $expectedPayload = [];
 
         public function fill(array $properties): static
@@ -715,17 +781,18 @@ test('save when exists is true', function () {
             $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1];
             Assert::assertSame('save', $trace['function']);
             Assert::assertSame(AbstractApiModel::class, $trace['class']);
+
             return parent::fill($properties);
         }
     };
 
     $properties = [
         'test' => $this->getName(),
-        'when' => now()->toDateTimeString()
+        'when' => now()->toDateTimeString(),
     ];
     $model::$expectedPayload = [
         'id' => random_int(100, 999),
-        'properties' => $properties
+        'properties' => $properties,
     ];
 
     $this->builder->method('for')->willReturnSelf();
@@ -736,27 +803,29 @@ test('save when exists is true', function () {
 });
 
 test('save when exists is false', function () {
-    $model = new class extends AbstractApiModel {
+    $model = new class extends AbstractApiModel
+    {
         public bool $exists = false;
-        public static array $expectedPayload = [];
 
+        public static array $expectedPayload = [];
 
         protected function init(array $payload = []): static
         {
             $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1];
             Assert::assertSame('save', $trace['function']);
             Assert::assertSame(AbstractApiModel::class, $trace['class']);
+
             return parent::init($payload);
         }
     };
 
     $properties = [
         'test' => $this->getName(),
-        'when' => now()->toDateTimeString()
+        'when' => now()->toDateTimeString(),
     ];
     $model::$expectedPayload = [
         'id' => random_int(100, 999),
-        'properties' => $properties
+        'properties' => $properties,
     ];
     $model->fill($properties);
     $this->builder->method('for')->willReturnSelf();

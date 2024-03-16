@@ -8,10 +8,11 @@ use STS\HubSpot\Api\Model;
 
 /**
  * @method Association contacts()
+ *
  * @property-read Contact|null $contact
  * @property-read Collection $contacts
  */
 class Meeting extends Model
 {
-    protected string $type = "meetings";
+    protected string $type = 'meetings';
 }

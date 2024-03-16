@@ -1,0 +1,8 @@
+version: '3.8'
+
+services:
+  laravel-hubspot:
+    build: .
+    volumes:
+      - .:/app
+    tty: true # Keeps the container running to execute commands like `docker exec`

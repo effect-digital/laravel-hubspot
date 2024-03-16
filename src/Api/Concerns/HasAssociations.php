@@ -10,6 +10,7 @@ use STS\HubSpot\Facades\HubSpot;
 trait HasAssociations
 {
     protected array $associations;
+
     protected array $preloaded = [];
 
     public function has(array $preloaded): static
@@ -21,7 +22,7 @@ trait HasAssociations
 
     public function associations($type): Association
     {
-        if(!$this->associationsLoaded($type)) {
+        if (! $this->associationsLoaded($type)) {
             $this->associations[$type] = new Association($this, HubSpot::factory($type), $this->getAssociationIDs($type));
         }
 

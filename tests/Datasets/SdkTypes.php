@@ -11,7 +11,7 @@ dataset('SdkTypes', function () {
     }
 });
 
-dataset('SdkTypes-singular',  function () {
+dataset('SdkTypes-singular', function () {
     $sdk = new Sdk();
     $properties = new ReflectionProperty($sdk, 'models');
     foreach ($properties->getValue($sdk) as $key => $modelClass) {
@@ -19,7 +19,7 @@ dataset('SdkTypes-singular',  function () {
     }
 });
 
-dataset('SdkTypes-both',  function () {
+dataset('SdkTypes-both', function () {
     $sdk = new Sdk();
     $properties = new ReflectionProperty($sdk, 'models');
     foreach ($properties->getValue($sdk) as $key => $modelClass) {

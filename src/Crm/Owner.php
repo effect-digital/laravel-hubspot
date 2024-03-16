@@ -2,14 +2,11 @@
 
 namespace STS\HubSpot\Crm;
 
-use Carbon\Carbon;
-use STS\HubSpot\Api\Builder;
 use STS\HubSpot\Api\Model;
-use STS\HubSpot\Facades\HubSpot;
 
 class Owner extends Model
 {
-    protected string $type = "owners";
+    protected string $type = 'owners';
 
     protected array $schema = [
         'email' => 'string',
@@ -25,7 +22,7 @@ class Owner extends Model
     ];
 
     protected array $endpoints = [
-        "read" => "/v3/owners/{id}",
+        'read' => '/v3/owners/{id}',
     ];
 
     protected function init(array $payload = []): static
