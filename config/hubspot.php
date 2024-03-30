@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'base_uri' => env('HUBSPOT_BASE_URI', 'https://api.hubapi.com'),
+    'base_url' => env('HUBSPOT_BASE_URI', 'https://api.hubapi.com'),
     'access_token' => env('HUBSPOT_ACCESS_TOKEN'),
 
     'definitions' => [
