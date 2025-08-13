@@ -78,7 +78,6 @@ test('update calls fill & save', function () {
         protected function assertBacktraceIsUpdate(): void
         {
             $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3)[2];
-            dump($trace);
             Assert::assertSame('update', $trace['function']);
             Assert::assertSame(AbstractApiModel::class, $trace['class']);
         }
