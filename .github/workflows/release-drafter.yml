@@ -1,6 +1,7 @@
 name: Release Drafter
 
 on:
+  workflow_dispatch:
   pull_request:
     types: [opened, reopened, synchronize, closed]
     branches-ignore:
@@ -11,6 +12,49 @@ permissions:
   pull-requests: write
 
 jobs:
-  release:
-    name: Release
-    uses: effect-digital/organisation/.github/workflows/release-drafter.yml@main
+  create-draft-release:
+    # Only run this job if the target branch is main, master or develop
+    if: (github.event.pull_request.base.ref == 'main' || github.event.pull_request.base.ref == 'master' || github.event.pull_request.base.ref == 'develop')
+
+    name: Create draft release
+    runs-on: ubuntu-latest
+
+    outputs:
+      release: ${{ steps.create-draft-release.outputs.tag_name }}
+
+    steps:
+      # Drafts your next Release notes as Pull Requests are merged in
+      - uses: release-drafter/release-drafter@v6
+        id: create-draft-release
+        with:
+          commitish: ${{ github.event.pull_request.base.ref }}
+          config-name: configs/release-drafter.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  create-release-branch:
+    # Only run this job if the PR was merged and the target branch is main, master or develop
+    if: (github.event.pull_request.merged == true) && (
+        github.event.pull_request.base.ref == 'main' ||
+        github.event.pull_request.base.ref == 'master' ||
+        github.event.pull_request.base.ref == 'develop'
+      )
+
+    name: Create release branch
+    needs: [create-draft-release]
+    runs-on: ubuntu-latest
+    steps:
+      # Create a release branch
+      - name: Create release branch
+        uses: peterjgrainger/action-create-branch@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          branch: release/${{ needs.create-draft-release.outputs.release }}
+
+      # Comment on the PR with the release branch link
+      - name: Comment on PR
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            The release branch (${{ needs.create-draft-release.outputs.release }}) for this PR has been created at ${{ github.event.pull_request.base.repo.html_url }}/tree/release/${{ needs.create-draft-release.outputs.release }}
