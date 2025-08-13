@@ -1,0 +1,16 @@
+name: Release Drafter
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, closed]
+    branches-ignore:
+      - docs/**
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release:
+    name: Release
+    uses: effect-digital/organisation/.github/workflows/release-drafter.yml@main
