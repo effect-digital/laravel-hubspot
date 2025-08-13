@@ -1,6 +1,7 @@
 name: Release Drafter
 
 on:
+  workflow_dispatch:
   pull_request:
     types: [opened, reopened, synchronize, closed]
     branches-ignore:
@@ -14,3 +15,4 @@ jobs:
   release:
     name: Release
     uses: effect-digital/organisation/.github/workflows/release-drafter.yml@main
+    secrets: inherit
