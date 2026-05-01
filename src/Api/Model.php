@@ -192,7 +192,23 @@ abstract class Model
         $original = Arr::get($this->payload, 'properties', []);
 
         foreach ($this->properties as $key => $value) {
-            if (! array_key_exists($key, $original) || (string) $original[$key] !== (string) $value) {
+            if (! array_key_exists($key, $original)) {
+                $dirty[$key] = $value;
+
+                continue;
+            }
+
+            $originalValue = $original[$key];
+
+            if (is_scalar($originalValue) && is_scalar($value)) {
+                if ((string) $originalValue !== (string) $value) {
+                    $dirty[$key] = $value;
+                }
+
+                continue;
+            }
+
+            if ($originalValue !== $value) {
                 $dirty[$key] = $value;
             }
         }
