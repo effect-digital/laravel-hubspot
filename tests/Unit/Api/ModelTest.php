@@ -634,6 +634,30 @@ test('getDirty does not flag string that equals stringified int payload value', 
     $this->assertSame([], $model->getDirty());
 });
 
+test('getDirty compares array values without casting them to strings', function () {
+    $model = new class extends AbstractApiModel {
+        protected array $payload = ['properties' => ['tags' => ['a', 'b'], 'owners' => ['a']]];
+        protected array $properties = ['tags' => ['a', 'b'], 'owners' => ['a', 'c']];
+    };
+    $this->assertSame(['owners' => ['a', 'c']], $model->getDirty());
+});
+
+test('getDirty does not flag an empty string over a null payload value', function () {
+    $model = new class extends AbstractApiModel {
+        protected array $payload = ['properties' => ['phone' => null]];
+        protected array $properties = ['phone' => ''];
+    };
+    $this->assertSame([], $model->getDirty());
+});
+
+test('getDirty flags a scalar that replaces an array', function () {
+    $model = new class extends AbstractApiModel {
+        protected array $payload = ['properties' => ['tags' => ['a']]];
+        protected array $properties = ['tags' => 'a'];
+    };
+    $this->assertSame(['tags' => 'a'], $model->getDirty());
+});
+
 test('getDirty flags genuine value changes regardless of type', function () {
     $model = new class extends AbstractApiModel {
         protected array $payload = ['properties' => ['dealstage' => '12967608']];

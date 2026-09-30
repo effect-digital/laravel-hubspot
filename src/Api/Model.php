@@ -200,12 +200,21 @@ abstract class Model implements ModelInterface
         $original = Arr::get($this->payload, 'properties', []);
 
         foreach ($this->properties as $key => $value) {
-            if (! array_key_exists($key, $original) || (string) $original[$key] !== (string) $value) {
+            if (! array_key_exists($key, $original) || ! $this->sameValue($original[$key], $value)) {
                 $dirty[$key] = $value;
             }
         }
 
         return $dirty;
+    }
+
+    protected function sameValue($original, $value): bool
+    {
+        if (is_array($original) || is_object($original) || is_array($value) || is_object($value)) {
+            return $original == $value;
+        }
+
+        return (string) $original === (string) $value;
     }
 
     protected function cast($value, $type = null): mixed
