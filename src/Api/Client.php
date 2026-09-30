@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Traits\ForwardsCalls;
 use STS\HubSpot\Exceptions\HubSpotApiException;
 use STS\HubSpot\Exceptions\InvalidRequestException;
+use STS\HubSpot\Exceptions\MethodNotAllowedException;
 use STS\HubSpot\Exceptions\NotFoundException;
 use STS\HubSpot\Exceptions\RateLimitException;
 
@@ -43,6 +44,7 @@ class Client
                 match($response->status()) {
                     400 => throw new InvalidRequestException($response->json('message'), 400),
                     404 => throw new NotFoundException($response, $exception),
+                    405 => throw new MethodNotAllowedException($response),
                     409 => throw new InvalidRequestException($response->json('message'), 409),
                     default => throw new HubSpotApiException($response, $exception)
                 };

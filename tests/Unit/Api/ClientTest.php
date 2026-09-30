@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Http;
 use STS\HubSpot\Api\Client;
 use STS\HubSpot\Exceptions\HubSpotApiException;
 use STS\HubSpot\Exceptions\InvalidRequestException;
+use STS\HubSpot\Exceptions\MethodNotAllowedException;
 use STS\HubSpot\Exceptions\NotFoundException;
 use STS\HubSpot\Exceptions\RateLimitException;
 
@@ -32,6 +33,17 @@ test('throws NotFoundException for 404 status', function () {
 
     expect(fn() => $client->get('/v3/objects/contacts/123'))
         ->toThrow(NotFoundException::class);
+});
+
+test('throws MethodNotAllowedException for 405 status', function () {
+    Http::fake([
+        '*' => Http::response(['message' => 'Method not allowed'], 405),
+    ]);
+
+    $client = new Client('test-token');
+
+    expect(fn() => $client->delete('/v3/objects/contacts'))
+        ->toThrow(MethodNotAllowedException::class);
 });
 
 test('throws InvalidRequestException for 409 status', function () {
