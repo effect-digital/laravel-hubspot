@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Sleep;
 use STS\HubSpot\Api\Client;
 use STS\HubSpot\Exceptions\HubSpotApiException;
 use STS\HubSpot\Exceptions\InvalidRequestException;
@@ -9,6 +10,7 @@ use STS\HubSpot\Exceptions\NotFoundException;
 use STS\HubSpot\Exceptions\RateLimitException;
 
 beforeEach(function () {
+    Sleep::fake();
     config()->set('hubspot.http.timeout', 10);
     config()->set('hubspot.http.connect_timeout', 10);
 });

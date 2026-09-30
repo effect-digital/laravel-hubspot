@@ -126,6 +126,8 @@ foreach(Contact::cursor() AS $contact) {
 
 > **Warning**
 > API rate limiting can be an obstacle when using this approach. Be careful about iterating over huge datasets very quickly, as this will still require quite a few API calls in the background.
+>
+> Requests that hit a rate limit (HTTP 429) are retried with exponential backoff, honouring `Retry-After`, up to `hubspot.http.retry.times` attempts (default 5). If every attempt is rate limited, a `STS\HubSpot\Exceptions\RateLimitException` is thrown.
 
 #### Manually fetching chunks
 
