@@ -68,6 +68,11 @@ return [
     'http' => [
         'timeout' => env('HUBSPOT_HTTP_TIMEOUT', 10),
         'connect_timeout' => env('HUBSPOT_HTTP_CONNECT_TIMEOUT', 10),
+        'retry' => [
+            'times' => (int) env('HUBSPOT_RETRY_TIMES', 5),
+            'initial_backoff_ms' => (int) env('HUBSPOT_RETRY_INITIAL_BACKOFF_MS', 1000),
+            'max_backoff_ms' => (int) env('HUBSPOT_RETRY_MAX_BACKOFF_MS', 30000),
+        ],
     ],
 
     'endpoints' => [
